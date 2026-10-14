@@ -10,7 +10,6 @@
     --white: #f4f6f8;
     --red: #ff2a1a;
     --lcd-on: #e9f1ff;
-    --lcd-off: rgba(233, 241, 255, 0.12);
     --off: rgba(255, 255, 255, 0.18);
     --font: 'Orbitron', 'Eurostile', 'Bank Gothic', 'Segoe UI', 'Arial Narrow', Arial, sans-serif;
 }
@@ -77,11 +76,11 @@ html.preview .hud {
 }
 
 #ticks, #labels {
-    filter: drop-shadow(0 0 2.5px rgba(255, 255, 255, 0.55));
+    filter: drop-shadow(0 0 2.5px rgba(255, 255, 255, 0.5));
 }
 
 .tick-minor {
-    stroke: rgba(255, 255, 255, 0.45);
+    stroke: rgba(255, 255, 255, 0.4);
     stroke-width: 1;
 }
 
@@ -95,34 +94,30 @@ html.preview .hud {
     stroke-width: 4;
 }
 
+/* Zona merah RPM */
+.tick-minor.red { stroke: rgba(255, 59, 47, 0.6); }
+.tick-mid.red,
+.tick-major.red { stroke: #ff3b2f; }
+
 .tick-label {
     fill: var(--white);
     font-family: var(--font);
-    font-size: 19px;
+    font-size: 24px;
     font-weight: 700;
     font-style: italic;
     text-anchor: middle;
     dominant-baseline: central;
 }
 
-/* RING RPM (di sekeliling layar tengah) */
-.rpm-seg {
-    stroke: rgba(255, 255, 255, 0.12);
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    transition: stroke 0.08s linear;
+.tick-label.red {
+    fill: #ff3b2f;
 }
 
-.rpm-seg.on {
-    stroke: #d6ebff;
-}
-
-.rpm-seg.red {
-    stroke: rgba(255, 42, 26, 0.28);
-}
-
-.rpm-seg.red.on {
-    stroke: var(--red);
+.rpm-unit {
+    fill: rgba(255, 255, 255, 0.45);
+    font-family: var(--font);
+    font-size: 8px;
+    letter-spacing: 1.5px;
 }
 
 /* LAYAR TENGAH */
@@ -130,10 +125,6 @@ html.preview .hud {
     fill: #000;
     stroke: url(#chrome);
     stroke-width: 4;
-}
-
-.disc-shade {
-    fill: rgba(2, 4, 8, 0.35);
 }
 
 .disc {
@@ -217,17 +208,68 @@ html.preview .hud {
     color: rgba(255, 255, 255, 0.8);
 }
 
-.fuel-row {
+/* Bensin % & PSI */
+.stat-row {
     position: absolute;
-    top: 120px;
+    top: 122px;
     left: 0;
     width: 100%;
+    display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 14px;
+}
+
+.stat {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    color: var(--lcd-on);
+    transition: color 0.2s ease;
+}
+
+.stat-icon {
+    width: 12px;
+    height: 12px;
+    opacity: 0.8;
+}
+
+.stat-value {
+    font-size: 11px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.stat-unit {
+    margin-left: 2px;
+    font-size: 7px;
+    font-weight: 700;
+    opacity: 0.7;
+    align-self: flex-end;
+    padding-bottom: 1px;
+}
+
+.stat.low {
+    color: #ff9100;
+    animation: lowPulse 1.2s ease-in-out infinite;
+}
+
+.stat.warn {
+    color: #ff9100;
+}
+
+.stat.danger {
+    color: #ff3333;
+}
+
+@keyframes lowPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
 }
 
 .odo-row {
     position: absolute;
-    top: 142px;
+    top: 144px;
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -248,79 +290,6 @@ html.preview .hud {
     font-weight: 600;
     color: var(--lcd-on);
     white-space: nowrap;
-}
-
-/* BAR BENSIN & ENGINE */
-.bar-group {
-    display: flex;
-    align-items: center;
-    gap: 3px;
-}
-
-.bar-icon {
-    width: 12px;
-    height: 12px;
-    color: rgba(233, 241, 255, 0.7);
-    display: flex;
-    transition: color 0.2s ease;
-}
-
-.bar-icon svg {
-    width: 100%;
-    height: 100%;
-}
-
-.bar-end {
-    font-size: 7px;
-    font-weight: 700;
-    color: rgba(233, 241, 255, 0.6);
-}
-
-.bar-segs {
-    display: flex;
-    gap: 1.5px;
-}
-
-.f-seg, .h-seg {
-    display: block;
-    width: 5px;
-    height: 9px;
-    background: var(--lcd-off);
-}
-
-.f-seg.active, .h-seg.active {
-    background: var(--lcd-on);
-    box-shadow: 0 0 4px rgba(200, 225, 255, 0.5);
-}
-
-#fuel-segments.low .f-seg.active {
-    background: #ff9100;
-    box-shadow: 0 0 4px rgba(255, 145, 0, 0.6);
-}
-
-#fuel-group.low {
-    animation: lowPulse 1.2s ease-in-out infinite;
-}
-
-@keyframes lowPulse {
-    0%, 100% { opacity: 1; }
-    50%      { opacity: 0.35; }
-}
-
-#engine-icon.active-warn {
-    color: #ff9100;
-}
-
-#engine-icon.active-danger {
-    color: #ff3333;
-}
-
-#engine-icon.active-warn + .bar-segs .h-seg.active {
-    background: #ff9100;
-}
-
-#engine-icon.active-danger + .bar-segs .h-seg.active {
-    background: #ff3333;
 }
 
 /* ===================== INTRO ANNIS ===================== */
@@ -417,21 +386,21 @@ html.preview .hud {
     50%      { filter: drop-shadow(0 0 8px rgba(124, 196, 255, 0.9)); }
 }
 
-/* INDIKATOR BAWAH */
+/* INDIKATOR BAWAH: tiga ikon rata tengah */
 .bottom-indicators {
     position: absolute;
-    top: 338px;
+    top: 334px;
     left: 0;
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 16px;
+    gap: 26px;
 }
 
 .icon-item {
-    width: 18px;
-    height: 18px;
+    width: 22px;
+    height: 22px;
     color: var(--off);
     transition: color 0.15s ease;
 }
@@ -452,8 +421,4 @@ html.preview .hud {
 .icon-item.warn {
     color: #ff3c3c;
     animation: lowPulse 1s ease-in-out infinite;
-}
-
-.health-row {
-    margin-left: 6px;
 }

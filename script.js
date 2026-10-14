@@ -1,12 +1,9 @@
 // ===================== KONFIGURASI =====================
 const CONFIG = {
-    unit: 'KMH',          // 'MPH' atau 'KMH'
-    maxSpeed: 240,        // Angka maksimal di dial
-    majorStep: 20,        // Angka besar + tick tebal
-    midStep: 10,          // Tick putih sedang
-    minorStep: 5,         // Tick halus
-    rpmSegments: 40,      // Jumlah segmen ring RPM
+    unit: 'MPH',          // 'MPH' atau 'KMH' (angka digital di layar tengah)
+    rpmMax: 8,            // Skala RPM di dial luar (x1000 r/min)
     redline: 0.85,        // Mulai zona merah RPM (0.0 - 1.0)
+    psiMax: 100,          // Engine health 100% = N PSI (ubah ke 1000 untuk menampilkan nilai health apa adanya)
 
     // Intro / brand
     brandText: 'ANNIS',   // Teks animasi. Jika logo.png ada, otomatis diganti logo
@@ -29,10 +26,8 @@ const CX = 200;
 const CY = 200;
 const R_TICK = 178;
 const R_LABEL = 126;
-const R_RPM_IN = 97;
-const R_RPM_OUT = 102;
 const START_ANGLE = 135;   // posisi angka 0 (derajat, searah jarum jam dari kanan)
-const SWEEP = 270;         // total sudut dari 0 sampai maxSpeed
+const SWEEP = 270;         // total sudut dari 0 sampai rpmMax
 const SVG_NS = 'http://www.w3.org/2000/svg';
 
 // Elemen DOM
@@ -44,21 +39,20 @@ const elClock = document.getElementById('clock');
 const elNeedle = document.getElementById('needle');
 const elIntro = document.getElementById('intro');
 const elBrand = document.getElementById('brand');
-const hSegs = document.querySelectorAll('.h-seg');
-const fSegs = document.querySelectorAll('.f-seg');
+const elFuelValue = document.getElementById('fuel-value');
+const elHealthValue = document.getElementById('health-value');
 
 const params = new URLSearchParams(location.search);
 if (params.has('preview')) document.documentElement.classList.add('preview');
 
-// ===================== MEMBANGUN DIAL =====================
+// ===================== MEMBANGUN DIAL RPM =====================
 function polar(radius, angleDeg) {
     const a = angleDeg * Math.PI / 180;
     return [CX + radius * Math.cos(a), CY + radius * Math.sin(a)];
 }
 
-function valueToAngle(value) {
-    const v = Math.max(0, Math.min(CONFIG.maxSpeed, value));
-    return START_ANGLE + (v / CONFIG.maxSpeed) * SWEEP;
+function fractionToAngle(f) {
+    return START_ANGLE + Math.max(0, Math.min(1, f)) * SWEEP;
 }
 
 function svgEl(tag, attrs) {
@@ -67,54 +61,42 @@ function svgEl(tag, attrs) {
     return el;
 }
 
-let rpmSegs = [];
-
 function buildDial() {
     const ticks = document.getElementById('ticks');
     const labels = document.getElementById('labels');
-    const rpmRing = document.getElementById('rpm-ring');
 
-    // Ticks + angka kecepatan
+    // Tick tiap 100 rpm, sedang tiap 500, besar + angka tiap 1000
+    const steps = CONFIG.rpmMax * 10;
     const minorFrag = document.createDocumentFragment();
-    for (let v = 0; v <= CONFIG.maxSpeed; v += CONFIG.minorStep) {
-        const angle = valueToAngle(v);
+    for (let i = 0; i <= steps; i++) {
+        const f = i / steps;
+        const angle = fractionToAngle(f);
+        const red = f >= CONFIG.redline;
         let cls = 'tick-minor';
         let len = 6;
-        if (v % CONFIG.majorStep === 0) { cls = 'tick-major'; len = 18; }
-        else if (v % CONFIG.midStep === 0) { cls = 'tick-mid'; len = 11; }
+        if (i % 10 === 0) { cls = 'tick-major'; len = 18; }
+        else if (i % 5 === 0) { cls = 'tick-mid'; len = 11; }
 
         const [x1, y1] = polar(R_TICK, angle);
         const [x2, y2] = polar(R_TICK - len, angle);
         const line = svgEl('line', {
             x1: x1.toFixed(2), y1: y1.toFixed(2),
             x2: x2.toFixed(2), y2: y2.toFixed(2),
-            class: cls
+            class: cls + (red ? ' red' : '')
         });
         (cls === 'tick-minor' ? minorFrag : ticks).appendChild(line);
 
         if (cls === 'tick-major') {
             const [lx, ly] = polar(R_LABEL, angle);
-            const text = svgEl('text', { x: lx.toFixed(2), y: ly.toFixed(2), class: 'tick-label' });
-            text.textContent = v;
+            const text = svgEl('text', {
+                x: lx.toFixed(2), y: ly.toFixed(2),
+                class: 'tick-label' + (red ? ' red' : '')
+            });
+            text.textContent = i / 10;
             labels.appendChild(text);
         }
     }
     ticks.insertBefore(minorFrag, ticks.firstChild);
-
-    // Ring RPM di sekeliling layar tengah
-    const n = CONFIG.rpmSegments;
-    for (let i = 0; i < n; i++) {
-        const angle = START_ANGLE + ((i + 0.5) / n) * SWEEP;
-        const red = (i / n) >= CONFIG.redline;
-        const [x1, y1] = polar(R_RPM_IN, angle);
-        const [x2, y2] = polar(R_RPM_OUT, angle);
-        const seg = svgEl('line', {
-            x1: x1.toFixed(2), y1: y1.toFixed(2), x2: x2.toFixed(2), y2: y2.toFixed(2),
-            class: 'rpm-seg' + (red ? ' red' : '')
-        });
-        rpmRing.appendChild(seg);
-        rpmSegs.push(seg);
-    }
 
     document.getElementById('speed-mode').innerText = CONFIG.unit === 'KMH' ? 'KM/H' : 'MPH';
     document.getElementById('odo-unit').innerText = CONFIG.unit === 'KMH' ? 'km' : 'mi';
@@ -122,18 +104,12 @@ function buildDial() {
 
 buildDial();
 
-function showRpm(fraction) {
-    const f = Math.max(0, Math.min(1, fraction));
-    const on = Math.round(f * rpmSegs.length);
-    rpmSegs.forEach(function (s, i) { s.classList.toggle('on', i < on); });
-}
-
-// ===================== ANIMASI JARUM =====================
+// ===================== ANIMASI JARUM (RPM) =====================
 let needleTarget = START_ANGLE;
 let needleCurrent = START_ANGLE;
 
 function renderNeedle() {
-    needleCurrent += (needleTarget - needleCurrent) * 0.2;
+    needleCurrent += (needleTarget - needleCurrent) * 0.25;
     if (Math.abs(needleTarget - needleCurrent) < 0.01) needleCurrent = needleTarget;
     elNeedle.setAttribute('transform', `translate(${CX} ${CY}) rotate(${needleCurrent.toFixed(2)})`);
     requestAnimationFrame(renderNeedle);
@@ -205,13 +181,6 @@ function isTrueValue(val) {
     return val === true || val === 1 || val === "1" || val === "true";
 }
 
-function fillSegments(segs, active) {
-    segs.forEach((seg, i) => {
-        if (i < active) seg.classList.add('active');
-        else seg.classList.remove('active');
-    });
-}
-
 function tween(from, to, ms, fn, done) {
     const t0 = performance.now();
     (function step(now) {
@@ -281,17 +250,15 @@ function playIntro() {
     renderBrand();
     elIntro.classList.add('show');
 
-    // Self-test: jarum & ring RPM menyapu penuh lalu kembali
+    // Self-test: jarum RPM menyapu penuh lalu kembali
     setTimeout(function () {
         if (!alive()) return;
         tween(0, 1, 1100, function (f) {
-            needleTarget = START_ANGLE + f * SWEEP;
-            showRpm(f);
+            needleTarget = fractionToAngle(f);
         }, function () {
             if (!alive()) return;
             tween(1, 0, 1100, function (f) {
-                needleTarget = START_ANGLE + f * SWEEP;
-                showRpm(f);
+                needleTarget = fractionToAngle(f);
             });
         });
     }, 300);
@@ -311,24 +278,25 @@ window.playIntro = playIntro; // panggil lagi saat pemain masuk kendaraan jika p
 
 // ===================== API UNTUK JGRP / CEF =====================
 
-// 1. Kecepatan (input m/s, jarum + angka digital)
+// 1. Kecepatan (input m/s) -> angka digital di layar tengah (MPH)
 window.setSpeed = function(speed) {
     lastSpeed = speed;
     if (introActive) return;
 
     const value = Math.round(Number(speed || 0) * SPEED_FACTOR);
-    needleTarget = valueToAngle(value);
     if (elSpeed) elSpeed.textContent = String(Math.min(value, 999));
 };
 
-// 2. RPM (0.0 - 1.0) -> ring di sekeliling layar tengah
+// 2. RPM (0.0 - 1.0) -> jarum merah di dial luar
 window.setRPM = function(rpm) {
     lastRPM = rpm;
     if (introActive) return;
-    showRpm(Number(rpm || 0));
+
+    const val = Math.max(0, Math.min(1, Number(rpm || 0)));
+    needleTarget = fractionToAngle(val);
 };
 
-// 3. Bensin (Fuel) + chime saat < 20%
+// 3. Bensin (Fuel) -> persen di layar tengah + chime saat < 20%
 let fuelIsLow = false;
 let fuelTimer = null;
 
@@ -337,12 +305,10 @@ window.setFuel = function(fuel) {
     // Mendukung nilai 0.0-1.0 maupun 0-100%
     let percent = (val > 1) ? (val / 100) : val;
     percent = Math.max(0, Math.min(1, percent));
-    fillSegments(fSegs, Math.round(percent * fSegs.length));
+    if (elFuelValue) elFuelValue.textContent = Math.round(percent * 100) + '%';
 
     const low = percent < CONFIG.fuelWarn;
-    const wrap = document.getElementById('fuel-segments');
     const group = document.getElementById('fuel-group');
-    if (wrap) wrap.classList.toggle('low', low);
     if (group) group.classList.toggle('low', low);
 
     if (low !== fuelIsLow) {
@@ -358,21 +324,18 @@ window.setFuel = function(fuel) {
     }
 };
 
-// 4. Engine Health
+// 4. Engine Health -> angka PSI di layar tengah
 window.setHealth = function(health) {
     const val = Number(health || 0);
     let percent = (val > 1) ? (val / 1000) : val;
     percent = Math.max(0, Math.min(1, percent));
-    fillSegments(hSegs, Math.round(percent * hSegs.length));
+    if (elHealthValue) elHealthValue.textContent = String(Math.round(percent * CONFIG.psiMax));
 
-    const engineIcon = document.getElementById('engine-icon');
-    if (engineIcon) {
-        engineIcon.className = 'bar-icon engine';
-        if (percent <= 0.25) {
-            engineIcon.classList.add('active-danger');
-        } else if (percent <= 0.50) {
-            engineIcon.classList.add('active-warn');
-        }
+    const group = document.getElementById('health-group');
+    if (group) {
+        group.className = 'stat';
+        if (percent <= 0.25) group.classList.add('danger');
+        else if (percent <= 0.50) group.classList.add('warn');
     }
 };
 
