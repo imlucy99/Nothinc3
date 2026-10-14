@@ -52,9 +52,9 @@
 
       <!-- Jarum RPM (merah, berada di luar layar tengah) -->
       <g id="needle" filter="url(#needle-glow)">
-        <path d="M110 -3.4 L150 -1.5 L150 1.5 L110 3.4 Z" fill="url(#needle-grad)" />
+        <path d="M92 -3.6 L150 -1.5 L150 1.5 L92 3.6 Z" fill="url(#needle-grad)" />
         <rect x="149" y="-3.3" width="6" height="6.6" rx="1" fill="#cfcfcf" />
-        <rect x="105" y="-4.6" width="6" height="9.2" rx="1.5" fill="#8d8d8d" />
+        <rect x="90" y="-4.8" width="10" height="9.6" rx="1.5" fill="#8d8d8d" />
       </g>
 
       <!-- Layar tengah (polos, tanpa gambar) -->
@@ -107,10 +107,16 @@
 
     <!-- INDIKATOR BAWAH (tengah, di ruang kosong bawah dial) -->
     <div id="indicators" class="bottom-indicators">
-      <div id="headlight-low" class="icon-item" title="Lampu">
+      <!-- Lampu: low beam = hijau (garis miring), high beam = biru (garis lurus) -->
+      <div id="headlight" class="icon-item headlight" title="Lampu">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6V6z"/>
-          <line x1="3" y1="9" x2="7" y2="10"/><line x1="3" y1="12" x2="7" y2="12"/><line x1="3" y1="15" x2="7" y2="14"/>
+          <g class="beam-low">
+            <line x1="3" y1="9" x2="7" y2="10"/><line x1="3" y1="12" x2="7" y2="12"/><line x1="3" y1="15" x2="7" y2="14"/>
+          </g>
+          <g class="beam-high">
+            <line x1="2" y1="8" x2="7" y2="8"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="2" y1="16" x2="7" y2="16"/>
+          </g>
         </svg>
       </div>
       <div id="seatbelts" class="icon-item" title="Sabuk Pengaman">
@@ -118,12 +124,6 @@
           <circle cx="12" cy="4" r="2.2"/>
           <path d="M8 8h8l1 7h-2l-.5 7h-5L9 15H7z" opacity=".9"/>
           <path d="M7.5 8.5 16.5 17" stroke="#000" stroke-width="1.6"/>
-        </svg>
-      </div>
-      <div id="headlight-high" class="icon-item" title="Lampu Jauh">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6V6z"/>
-          <line x1="2" y1="8" x2="7" y2="8"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="2" y1="16" x2="7" y2="16"/>
         </svg>
       </div>
     </div>

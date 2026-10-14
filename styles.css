@@ -415,7 +415,20 @@ html.preview .hud {
 }
 
 .icon-item.high-beam {
-    color: #3d8bff;
+    color: #2f6bff;
+}
+
+/* Ikon lampu tunggal: low beam (garis miring) / high beam (garis lurus) */
+.icon-item .beam-high {
+    display: none;
+}
+
+.icon-item.high-beam .beam-low {
+    display: none;
+}
+
+.icon-item.high-beam .beam-high {
+    display: inline;
 }
 
 .icon-item.warn {

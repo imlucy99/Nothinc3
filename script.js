@@ -4,6 +4,7 @@ const CONFIG = {
     rpmMax: 8,            // Skala RPM di dial luar (x1000 r/min)
     redline: 0.85,        // Mulai zona merah RPM (0.0 - 1.0)
     psiMax: 100,          // Engine health 100% = N PSI (ubah ke 1000 untuk menampilkan nilai health apa adanya)
+    clock12h: true,       // true = format 12 jam (AM/PM), false = 24 jam
 
     // Intro / brand
     brandText: 'ANNIS',   // Teks animasi. Jika logo.png ada, otomatis diganti logo
@@ -120,7 +121,13 @@ requestAnimationFrame(renderNeedle);
 function tickClock() {
     const d = new Date();
     const p = function (n) { return String(n).padStart(2, '0'); };
-    if (elClock) elClock.textContent = p(d.getHours()) + ':' + p(d.getMinutes());
+    if (!elClock) return;
+    const h = d.getHours();
+    if (CONFIG.clock12h) {
+        elClock.textContent = (h % 12 || 12) + ':' + p(d.getMinutes()) + ' ' + (h < 12 ? 'AM' : 'PM');
+    } else {
+        elClock.textContent = p(h) + ':' + p(d.getMinutes());
+    }
 }
 tickClock();
 setInterval(tickClock, 1000);
@@ -346,13 +353,12 @@ window.setGear = function(gear) {
     elGear.innerText = (gear == 0 || gear === "0") ? 'R' : String(gear);
 };
 
-// 6. Lampu (0 = mati, 1 = dekat, 2 = jauh)
+// 6. Lampu (0 = mati, 1 = dekat/hijau, 2 = jauh/biru) - satu ikon yang berubah otomatis
 window.setHeadlights = function(state) {
-    const low = document.getElementById('headlight-low');
-    const high = document.getElementById('headlight-high');
+    const el = document.getElementById('headlight');
+    if (!el) return;
     const val = Number(state || 0);
-    if (low) low.className = (val === 1) ? 'icon-item active' : 'icon-item';
-    if (high) high.className = (val === 2) ? 'icon-item high-beam' : 'icon-item';
+    el.className = 'icon-item headlight' + (val === 2 ? ' high-beam' : (val === 1 ? ' active' : ''));
 };
 
 // 7. Seatbelt + chime saat tidak dipakai
