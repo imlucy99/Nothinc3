@@ -7,12 +7,12 @@
 :root {
     /* Ubah --hud-scale untuk memperbesar / memperkecil HUD di dalam game */
     --hud-scale: 0.8;
-    --orange: #ff7a1a;
-    --orange-hot: #ffb15c;
-    --white: #f5f3ef;
+    --white: #f4f6f8;
+    --red: #ff2a1a;
     --lcd-on: #e9f1ff;
-    --lcd-off: rgba(233, 241, 255, 0.07);
-    --off: rgba(255, 255, 255, 0.16);
+    --lcd-off: rgba(233, 241, 255, 0.12);
+    --off: rgba(255, 255, 255, 0.18);
+    --font: 'Orbitron', 'Eurostile', 'Bank Gothic', 'Segoe UI', 'Arial Narrow', Arial, sans-serif;
 }
 
 html, body {
@@ -21,7 +21,7 @@ html, body {
     background: transparent !important;
     background-color: transparent !important;
     overflow: hidden !important;
-    font-family: 'Arial Narrow', 'Roboto Condensed', 'Segoe UI', Arial, sans-serif;
+    font-family: var(--font);
     color: var(--white);
     display: flex;
     justify-content: flex-end;
@@ -59,231 +59,208 @@ html.preview .hud {
     overflow: visible;
 }
 
+.bezel {
+    fill: none;
+    stroke: url(#chrome);
+    stroke-width: 6;
+}
+
 .face {
     fill: url(#face-grad);
-    fill-opacity: 0.93;
-    stroke: rgba(255, 255, 255, 0.07);
-    stroke-width: 1.5;
+    fill-opacity: 0.96;
 }
 
-.face-shade {
-    fill: url(#face-grad);
-    fill-opacity: 0.6;
-    stroke: rgba(255, 255, 255, 0.12);
-    stroke-width: 1.5;
-}
-
-.ring-line {
+.face-ring {
     fill: none;
-    stroke: var(--orange);
-    stroke-width: 2.4;
+    stroke: rgba(255, 255, 255, 0.07);
+    stroke-width: 1;
+}
+
+#ticks, #labels {
+    filter: drop-shadow(0 0 2.5px rgba(255, 255, 255, 0.55));
 }
 
 .tick-minor {
-    stroke: var(--orange);
-    stroke-width: 1.4;
+    stroke: rgba(255, 255, 255, 0.45);
+    stroke-width: 1;
 }
 
 .tick-mid {
-    stroke: var(--white);
-    stroke-width: 3;
+    stroke: rgba(255, 255, 255, 0.85);
+    stroke-width: 1.8;
 }
 
 .tick-major {
     stroke: var(--white);
-    stroke-width: 6;
+    stroke-width: 4;
 }
 
 .tick-label {
     fill: var(--white);
-    font-size: 21px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    text-anchor: middle;
-    dominant-baseline: central;
-}
-
-.hub-ring {
-    fill: none;
-    stroke: rgba(255, 140, 50, 0.55);
-    stroke-width: 1.5;
-}
-
-/* SKALA & JARUM RPM (setengah lingkaran atas) */
-.rpm-arc {
-    fill: none;
-    stroke: rgba(255, 255, 255, 0.25);
-    stroke-width: 1.2;
-}
-
-.rpm-arc.red {
-    stroke: rgba(255, 59, 47, 0.7);
-    stroke-width: 2;
-}
-
-.rpm-tick {
-    stroke: rgba(255, 255, 255, 0.55);
-    stroke-width: 1.4;
-}
-
-.rpm-tick.major {
-    stroke: var(--white);
-    stroke-width: 2.4;
-}
-
-.rpm-tick.red {
-    stroke: #ff3b2f;
-}
-
-.rpm-num {
-    fill: var(--white);
-    font-size: 12px;
-    font-weight: 700;
-    text-anchor: middle;
-    dominant-baseline: central;
-}
-
-.rpm-num.red {
-    fill: #ff3b2f;
-}
-
-#rpm-needle path {
-    fill: var(--white);
-    transition: fill 0.1s linear;
-}
-
-#rpm-needle.red path {
-    fill: #ff3b2f;
-}
-
-/* READOUT DIGITAL (di atas hub jarum) */
-.readout {
-    position: absolute;
-    top: 132px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    pointer-events: none;
-}
-
-.speed-text {
-    font-family: 'Consolas', 'Courier New', monospace;
-    font-size: 36px;
-    font-weight: 800;
-    font-style: italic;
-    line-height: 1;
-    letter-spacing: 1px;
-}
-
-.speed-text .dim {
-    color: rgba(255, 255, 255, 0.13);
-}
-
-.speed-text .bright {
-    color: var(--white);
-}
-
-.speed-unit {
-    margin-top: 2px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: var(--orange);
-}
-
-.rpm-label {
-    position: absolute;
-    top: 219px;
-    width: 100%;
-    text-align: center;
-    font-size: 8px;
-    letter-spacing: 1.5px;
-    color: rgba(255, 255, 255, 0.35);
-}
-
-/* PANEL LCD */
-.lcd {
-    position: absolute;
-    top: 236px;
-    left: 112px;
-    width: 176px;
-    height: 58px;
-    padding: 5px 8px;
-    background: linear-gradient(180deg, #0d1014 0%, #06080a 100%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 5px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-.lcd-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.lcd-cell {
-    display: flex;
-    align-items: flex-end;
-    gap: 4px;
-}
-
-.lcd-label {
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--lcd-on);
-    opacity: 0.75;
-    align-self: flex-start;
-}
-
-.lcd-unit {
-    font-size: 8px;
-    font-weight: 700;
-    color: var(--lcd-on);
-    opacity: 0.75;
-}
-
-/* Efek 7-segment */
-.seg-wrap {
-    position: relative;
-    font-family: 'Consolas', 'Courier New', monospace;
+    font-family: var(--font);
     font-size: 19px;
     font-weight: 700;
     font-style: italic;
-    line-height: 1;
+    text-anchor: middle;
+    dominant-baseline: central;
 }
 
-.seg-ghost {
-    color: var(--lcd-off);
+/* RING RPM (di sekeliling layar tengah) */
+.rpm-seg {
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    transition: stroke 0.08s linear;
 }
 
-.seg-value {
+.rpm-seg.on {
+    stroke: #d6ebff;
+}
+
+.rpm-seg.red {
+    stroke: rgba(255, 42, 26, 0.28);
+}
+
+.rpm-seg.red.on {
+    stroke: var(--red);
+}
+
+/* LAYAR TENGAH */
+.disc-bezel {
+    fill: #000;
+    stroke: url(#chrome);
+    stroke-width: 4;
+}
+
+.disc-shade {
+    fill: rgba(2, 4, 8, 0.35);
+}
+
+.disc {
     position: absolute;
-    right: 0;
-    top: 0;
+    left: 112px;
+    top: 112px;
+    width: 176px;
+    height: 176px;
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.disc-ui {
+    position: absolute;
+    inset: 0;
+    transition: opacity 0.5s ease;
+}
+
+.hud.booting .disc-ui {
+    opacity: 0;
+}
+
+.gear-row {
+    position: absolute;
+    top: 6px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+}
+
+.gear-line {
+    width: 26px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.35);
+}
+
+.gear {
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 22px;
+    color: var(--white);
+}
+
+.clock {
+    position: absolute;
+    top: 30px;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.78);
+}
+
+.speed-wrap {
+    position: absolute;
+    top: 46px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.speed-text {
+    font-size: 50px;
+    line-height: 52px;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--white);
+    text-shadow: 0 0 8px rgba(160, 200, 255, 0.35);
+}
+
+.speed-unit {
+    margin-top: 1px;
+    font-size: 9px;
+    line-height: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.fuel-row {
+    position: absolute;
+    top: 120px;
+    left: 0;
+    width: 100%;
+    justify-content: center;
+}
+
+.odo-row {
+    position: absolute;
+    top: 142px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+}
+
+.lcd-label {
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--lcd-on);
+    opacity: 0.6;
+}
+
+.odo-value {
+    font-size: 10px;
+    font-weight: 600;
     color: var(--lcd-on);
     white-space: nowrap;
 }
 
 /* BAR BENSIN & ENGINE */
-.lcd-bars {
-    gap: 6px;
-}
-
 .bar-group {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 3px;
 }
 
 .bar-icon {
-    width: 11px;
-    height: 11px;
-    color: rgba(233, 241, 255, 0.6);
+    width: 12px;
+    height: 12px;
+    color: rgba(233, 241, 255, 0.7);
     display: flex;
     transition: color 0.2s ease;
 }
@@ -296,28 +273,29 @@ html.preview .hud {
 .bar-end {
     font-size: 7px;
     font-weight: 700;
-    color: rgba(233, 241, 255, 0.5);
+    color: rgba(233, 241, 255, 0.6);
 }
 
 .bar-segs {
     display: flex;
-    gap: 1px;
+    gap: 1.5px;
 }
 
 .f-seg, .h-seg {
     display: block;
-    width: 3.5px;
+    width: 5px;
     height: 9px;
     background: var(--lcd-off);
-    transform: skewX(-12deg);
 }
 
 .f-seg.active, .h-seg.active {
     background: var(--lcd-on);
+    box-shadow: 0 0 4px rgba(200, 225, 255, 0.5);
 }
 
 #fuel-segments.low .f-seg.active {
     background: #ff9100;
+    box-shadow: 0 0 4px rgba(255, 145, 0, 0.6);
 }
 
 #fuel-group.low {
@@ -345,78 +323,110 @@ html.preview .hud {
     background: #ff3333;
 }
 
-/* ===================== BRAND ANNIS ===================== */
-.brand {
+/* ===================== INTRO ANNIS ===================== */
+.intro {
     position: absolute;
-    top: 304px;
-    left: 0;
-    width: 100%;
-    height: 28px;
+    inset: 0;
+    border-radius: 50%;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at 50% 45%, rgba(14, 20, 30, 0.97), #000 75%);
+    opacity: 0;
     pointer-events: none;
+    transition: opacity 0.5s ease;
+}
+
+.intro.show {
+    opacity: 1;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.brand-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .brand-letter {
     display: inline-block;
-    font-family: 'Arial Black', 'Segoe UI', Arial, sans-serif;
-    font-size: 19px;
+    font-family: var(--font);
+    font-size: 32px;
     font-weight: 900;
     font-style: italic;
-    letter-spacing: 5px;
+    letter-spacing: 4px;
     color: var(--white);
     opacity: 0;
-    transform: translateY(10px) scale(0.6);
+    transform: translateY(12px) scale(0.5);
     animation:
         letterIn 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.2) forwards,
-        letterWave 3.6s ease-in-out infinite;
+        letterWave 2.4s ease-in-out infinite;
     animation-delay:
         calc(var(--i) * 0.14s),
-        calc(1.2s + var(--i) * 0.16s);
+        calc(1.1s + var(--i) * 0.14s);
 }
 
 @keyframes letterIn {
-    0%   { opacity: 0; transform: translateY(10px) scale(0.6); filter: blur(4px); }
+    0%   { opacity: 0; transform: translateY(12px) scale(0.5); filter: blur(5px); }
     100% { opacity: 1; transform: translateY(0) scale(1);      filter: blur(0); }
 }
 
 @keyframes letterWave {
     0%, 55%, 100% { color: var(--white); text-shadow: none; }
-    25%           { color: var(--orange-hot); text-shadow: 0 0 6px var(--orange), 0 0 14px var(--orange); }
+    25%           { color: #fff; text-shadow: 0 0 8px #7cc4ff, 0 0 18px #3d8bff; }
+}
+
+.intro-line {
+    height: 2px;
+    width: 0;
+    margin-top: 8px;
+    background: linear-gradient(90deg, transparent, var(--red), transparent);
+    box-shadow: 0 0 8px var(--red);
+    animation: lineGrow 0.9s ease-out 0.8s forwards;
+}
+
+@keyframes lineGrow {
+    0%   { width: 0; opacity: 0; }
+    100% { width: 120px; opacity: 1; }
 }
 
 /* Logo (dipakai jika logo.png tersedia) */
 .brand-logo {
-    max-height: 28px;
+    max-height: 64px;
     max-width: 130px;
     object-fit: contain;
     opacity: 0;
-    transform: scale(0.7);
+    transform: scale(0.6);
     animation:
         logoIn 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.2) forwards,
-        logoGlow 3.2s ease-in-out 1s infinite;
+        logoGlow 2.2s ease-in-out 1s infinite;
 }
 
 @keyframes logoIn {
-    0%   { opacity: 0; transform: scale(0.7); filter: blur(5px); }
+    0%   { opacity: 0; transform: scale(0.6); filter: blur(6px); }
     100% { opacity: 1; transform: scale(1);   filter: blur(0); }
 }
 
 @keyframes logoGlow {
-    0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 122, 26, 0)); }
-    50%      { filter: drop-shadow(0 0 7px rgba(255, 122, 26, 0.9)); }
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(124, 196, 255, 0)); }
+    50%      { filter: drop-shadow(0 0 8px rgba(124, 196, 255, 0.9)); }
 }
 
 /* INDIKATOR BAWAH */
 .bottom-indicators {
     position: absolute;
-    top: 342px;
+    top: 338px;
     left: 0;
     width: 100%;
     display: flex;
     justify-content: center;
-    gap: 22px;
+    align-items: center;
+    gap: 16px;
 }
 
 .icon-item {
@@ -442,4 +452,8 @@ html.preview .hud {
 .icon-item.warn {
     color: #ff3c3c;
     animation: lowPulse 1s ease-in-out infinite;
+}
+
+.health-row {
+    margin-left: 6px;
 }
