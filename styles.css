@@ -1,0 +1,445 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Ubah --hud-scale untuk memperbesar / memperkecil HUD di dalam game */
+    --hud-scale: 0.8;
+    --orange: #ff7a1a;
+    --orange-hot: #ffb15c;
+    --white: #f5f3ef;
+    --lcd-on: #e9f1ff;
+    --lcd-off: rgba(233, 241, 255, 0.07);
+    --off: rgba(255, 255, 255, 0.16);
+}
+
+html, body {
+    width: 100vw;
+    height: 100vh;
+    background: transparent !important;
+    background-color: transparent !important;
+    overflow: hidden !important;
+    font-family: 'Arial Narrow', 'Roboto Condensed', 'Segoe UI', Arial, sans-serif;
+    color: var(--white);
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+    user-select: none;
+}
+
+/* Mode preview */
+html.preview body {
+    justify-content: center;
+    align-items: center;
+}
+
+/* KONTAINER HUD UTAMA (400 x 400 lalu di-scale) */
+.hud {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 18px;
+    flex-shrink: 0;
+    transform: scale(var(--hud-scale));
+    transform-origin: bottom right;
+}
+
+html.preview .hud {
+    transform-origin: center;
+}
+
+/* DIAL SVG */
+.dial {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+}
+
+.face {
+    fill: url(#face-grad);
+    fill-opacity: 0.93;
+    stroke: rgba(255, 255, 255, 0.07);
+    stroke-width: 1.5;
+}
+
+.face-shade {
+    fill: url(#face-grad);
+    fill-opacity: 0.6;
+    stroke: rgba(255, 255, 255, 0.12);
+    stroke-width: 1.5;
+}
+
+.ring-line {
+    fill: none;
+    stroke: var(--orange);
+    stroke-width: 2.4;
+}
+
+.tick-minor {
+    stroke: var(--orange);
+    stroke-width: 1.4;
+}
+
+.tick-mid {
+    stroke: var(--white);
+    stroke-width: 3;
+}
+
+.tick-major {
+    stroke: var(--white);
+    stroke-width: 6;
+}
+
+.tick-label {
+    fill: var(--white);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.hub-ring {
+    fill: none;
+    stroke: rgba(255, 140, 50, 0.55);
+    stroke-width: 1.5;
+}
+
+/* SKALA & JARUM RPM (setengah lingkaran atas) */
+.rpm-arc {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.25);
+    stroke-width: 1.2;
+}
+
+.rpm-arc.red {
+    stroke: rgba(255, 59, 47, 0.7);
+    stroke-width: 2;
+}
+
+.rpm-tick {
+    stroke: rgba(255, 255, 255, 0.55);
+    stroke-width: 1.4;
+}
+
+.rpm-tick.major {
+    stroke: var(--white);
+    stroke-width: 2.4;
+}
+
+.rpm-tick.red {
+    stroke: #ff3b2f;
+}
+
+.rpm-num {
+    fill: var(--white);
+    font-size: 12px;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: central;
+}
+
+.rpm-num.red {
+    fill: #ff3b2f;
+}
+
+#rpm-needle path {
+    fill: var(--white);
+    transition: fill 0.1s linear;
+}
+
+#rpm-needle.red path {
+    fill: #ff3b2f;
+}
+
+/* READOUT DIGITAL (di atas hub jarum) */
+.readout {
+    position: absolute;
+    top: 132px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+}
+
+.speed-text {
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 36px;
+    font-weight: 800;
+    font-style: italic;
+    line-height: 1;
+    letter-spacing: 1px;
+}
+
+.speed-text .dim {
+    color: rgba(255, 255, 255, 0.13);
+}
+
+.speed-text .bright {
+    color: var(--white);
+}
+
+.speed-unit {
+    margin-top: 2px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: var(--orange);
+}
+
+.rpm-label {
+    position: absolute;
+    top: 219px;
+    width: 100%;
+    text-align: center;
+    font-size: 8px;
+    letter-spacing: 1.5px;
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* PANEL LCD */
+.lcd {
+    position: absolute;
+    top: 236px;
+    left: 112px;
+    width: 176px;
+    height: 58px;
+    padding: 5px 8px;
+    background: linear-gradient(180deg, #0d1014 0%, #06080a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.lcd-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.lcd-cell {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.lcd-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--lcd-on);
+    opacity: 0.75;
+    align-self: flex-start;
+}
+
+.lcd-unit {
+    font-size: 8px;
+    font-weight: 700;
+    color: var(--lcd-on);
+    opacity: 0.75;
+}
+
+/* Efek 7-segment */
+.seg-wrap {
+    position: relative;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 19px;
+    font-weight: 700;
+    font-style: italic;
+    line-height: 1;
+}
+
+.seg-ghost {
+    color: var(--lcd-off);
+}
+
+.seg-value {
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: var(--lcd-on);
+    white-space: nowrap;
+}
+
+/* BAR BENSIN & ENGINE */
+.lcd-bars {
+    gap: 6px;
+}
+
+.bar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.bar-icon {
+    width: 11px;
+    height: 11px;
+    color: rgba(233, 241, 255, 0.6);
+    display: flex;
+    transition: color 0.2s ease;
+}
+
+.bar-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.bar-end {
+    font-size: 7px;
+    font-weight: 700;
+    color: rgba(233, 241, 255, 0.5);
+}
+
+.bar-segs {
+    display: flex;
+    gap: 1px;
+}
+
+.f-seg, .h-seg {
+    display: block;
+    width: 3.5px;
+    height: 9px;
+    background: var(--lcd-off);
+    transform: skewX(-12deg);
+}
+
+.f-seg.active, .h-seg.active {
+    background: var(--lcd-on);
+}
+
+#fuel-segments.low .f-seg.active {
+    background: #ff9100;
+}
+
+#fuel-group.low {
+    animation: lowPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes lowPulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.35; }
+}
+
+#engine-icon.active-warn {
+    color: #ff9100;
+}
+
+#engine-icon.active-danger {
+    color: #ff3333;
+}
+
+#engine-icon.active-warn + .bar-segs .h-seg.active {
+    background: #ff9100;
+}
+
+#engine-icon.active-danger + .bar-segs .h-seg.active {
+    background: #ff3333;
+}
+
+/* ===================== BRAND ANNIS ===================== */
+.brand {
+    position: absolute;
+    top: 304px;
+    left: 0;
+    width: 100%;
+    height: 28px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+
+.brand-letter {
+    display: inline-block;
+    font-family: 'Arial Black', 'Segoe UI', Arial, sans-serif;
+    font-size: 19px;
+    font-weight: 900;
+    font-style: italic;
+    letter-spacing: 5px;
+    color: var(--white);
+    opacity: 0;
+    transform: translateY(10px) scale(0.6);
+    animation:
+        letterIn 0.7s cubic-bezier(0.2, 0.9, 0.25, 1.2) forwards,
+        letterWave 3.6s ease-in-out infinite;
+    animation-delay:
+        calc(var(--i) * 0.14s),
+        calc(1.2s + var(--i) * 0.16s);
+}
+
+@keyframes letterIn {
+    0%   { opacity: 0; transform: translateY(10px) scale(0.6); filter: blur(4px); }
+    100% { opacity: 1; transform: translateY(0) scale(1);      filter: blur(0); }
+}
+
+@keyframes letterWave {
+    0%, 55%, 100% { color: var(--white); text-shadow: none; }
+    25%           { color: var(--orange-hot); text-shadow: 0 0 6px var(--orange), 0 0 14px var(--orange); }
+}
+
+/* Logo (dipakai jika logo.png tersedia) */
+.brand-logo {
+    max-height: 28px;
+    max-width: 130px;
+    object-fit: contain;
+    opacity: 0;
+    transform: scale(0.7);
+    animation:
+        logoIn 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.2) forwards,
+        logoGlow 3.2s ease-in-out 1s infinite;
+}
+
+@keyframes logoIn {
+    0%   { opacity: 0; transform: scale(0.7); filter: blur(5px); }
+    100% { opacity: 1; transform: scale(1);   filter: blur(0); }
+}
+
+@keyframes logoGlow {
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(255, 122, 26, 0)); }
+    50%      { filter: drop-shadow(0 0 7px rgba(255, 122, 26, 0.9)); }
+}
+
+/* INDIKATOR BAWAH */
+.bottom-indicators {
+    position: absolute;
+    top: 342px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+}
+
+.icon-item {
+    width: 18px;
+    height: 18px;
+    color: var(--off);
+    transition: color 0.15s ease;
+}
+
+.icon-item svg {
+    width: 100%;
+    height: 100%;
+}
+
+.icon-item.active {
+    color: #20e070;
+}
+
+.icon-item.high-beam {
+    color: #3d8bff;
+}
+
+.icon-item.warn {
+    color: #ff3c3c;
+    animation: lowPulse 1s ease-in-out infinite;
+}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JGVRP Speedometer HUD</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="hud" id="hud">
+    <!-- DIAL BULAT (ticks, angka, RPM & jarum dibuat oleh script.js) -->
+    <svg id="dial" class="dial" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="face-grad" cx="50%" cy="55%" r="60%">
+          <stop offset="0%" stop-color="#16120f" />
+          <stop offset="70%" stop-color="#070707" />
+          <stop offset="100%" stop-color="#000000" />
+        </radialGradient>
+        <linearGradient id="needle-grad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#ff5a00" />
+          <stop offset="70%" stop-color="#ff8a1e" />
+          <stop offset="100%" stop-color="#ffd28a" />
+        </linearGradient>
+        <radialGradient id="hub-grad" cx="40%" cy="35%" r="70%">
+          <stop offset="0%" stop-color="#3a3a3a" />
+          <stop offset="100%" stop-color="#050505" />
+        </radialGradient>
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <clipPath id="face-clip"><circle cx="200" cy="200" r="196" /></clipPath>
+      </defs>
+
+      <!-- Bentuk bulat -->
+      <circle class="face" cx="200" cy="200" r="196" />
+      <image href="background.jpg" x="4" y="4" width="392" height="392" preserveAspectRatio="xMidYMid slice" clip-path="url(#face-clip)" />
+      <circle class="face-shade" cx="200" cy="200" r="196" />
+
+      <g id="ring"></g>
+      <g id="ticks"></g>
+      <g id="labels"></g>
+      <g id="rpm-scale"></g>
+
+      <!-- Jarum RPM (pendek) -->
+      <g id="rpm-needle">
+        <path d="M-12 -2.4 L92 -0.9 L96 0 L92 0.9 L-12 2.4 Z" />
+      </g>
+
+      <!-- Jarum Speed -->
+      <g id="needle" filter="url(#glow)">
+        <path d="M-22 -3 L158 -1.2 L164 0 L158 1.2 L-22 3 Z" fill="url(#needle-grad)" />
+      </g>
+      <circle class="hub" cx="200" cy="200" r="15" fill="url(#hub-grad)" />
+      <circle class="hub-ring" cx="200" cy="200" r="15" />
+    </svg>
+
+    <!-- READOUT DIGITAL TENGAH -->
+    <div class="readout">
+      <div id="speed-display" class="speed-text">
+        <span class="dim">00</span><span class="bright">0</span>
+      </div>
+      <div id="speed-mode" class="speed-unit">MPH</div>
+    </div>
+    <div class="rpm-label">x1000 r/min</div>
+
+    <!-- PANEL LCD -->
+    <div class="lcd">
+      <div class="lcd-row">
+        <div class="lcd-cell">
+          <span class="lcd-label">GEAR</span>
+          <span class="seg-wrap gear-wrap">
+            <span class="seg-ghost">8</span>
+            <span id="gear" class="seg-value">1</span>
+          </span>
+        </div>
+        <div class="lcd-cell lcd-odo">
+          <span class="lcd-label">ODO</span>
+          <span class="seg-wrap">
+            <span class="seg-ghost">88888.8</span>
+            <span id="odometer" class="seg-value">0.0</span>
+          </span>
+          <span id="odo-unit" class="lcd-unit">mi</span>
+        </div>
+      </div>
+
+      <div class="lcd-row lcd-bars">
+        <!-- Bensin -->
+        <div id="fuel-group" class="bar-group">
+          <svg class="bar-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19 11h-1V3c0-.55-.45-1-1-1H7c-.55 0-1 .45-1 1v18h12c.55 0 1-.45 1-1v-6c0-1.66-1.34-3-3-3zm-3 2c.55 0 1 .45 1 1v4h-2v-5h1zM8 4h8v5H8V4z"/>
+          </svg>
+          <span class="bar-end">E</span>
+          <div id="fuel-segments" class="bar-segs">
+            <i class="f-seg"></i><i class="f-seg"></i><i class="f-seg"></i><i class="f-seg"></i><i class="f-seg"></i>
+            <i class="f-seg"></i><i class="f-seg"></i><i class="f-seg"></i><i class="f-seg"></i><i class="f-seg"></i>
+          </div>
+          <span class="bar-end">F</span>
+        </div>
+
+        <!-- Engine Health -->
+        <div class="bar-group">
+          <div id="engine-icon" class="bar-icon engine">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22 12c0-.6-.4-1-1-1h-2V9c0-.6-.4-1-1-1h-2V5c0-.6-.4-1-1-1H9c-.6 0-1 .4-1 1v3H6c-.6 0-1 .4-1 1v2H3c-.6 0-1 .4-1 1v3c0 .6.4 1 1 1h2v2c0 .6.4 1 1 1h12c.6 0 1-.4 1-1v-2h2c.6 0 1-.4 1-1v-3zM10 6h4v2h-4V6z"/>
+            </svg>
+          </div>
+          <div id="health-segments" class="bar-segs">
+            <i class="h-seg"></i><i class="h-seg"></i><i class="h-seg"></i><i class="h-seg"></i><i class="h-seg"></i>
+            <i class="h-seg"></i><i class="h-seg"></i><i class="h-seg"></i><i class="h-seg"></i><i class="h-seg"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BRAND: teks ANNIS beranimasi, otomatis diganti logo.png jika file ada -->
+    <div id="brand" class="brand" aria-label="ANNIS"></div>
+
+    <!-- INDIKATOR BAWAH -->
+    <div id="indicators" class="bottom-indicators">
+      <div id="headlight-low" class="icon-item" title="Lampu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6V6z"/>
+          <line x1="3" y1="9" x2="7" y2="10"/><line x1="3" y1="12" x2="7" y2="12"/><line x1="3" y1="15" x2="7" y2="14"/>
+        </svg>
+      </div>
+      <div id="headlight-high" class="icon-item" title="Lampu Jauh">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6V6z"/>
+          <line x1="2" y1="8" x2="7" y2="8"/><line x1="2" y1="12" x2="7" y2="12"/><line x1="2" y1="16" x2="7" y2="16"/>
+        </svg>
+      </div>
+      <div id="seatbelts" class="icon-item" title="Sabuk Pengaman">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="4" r="2.2"/>
+          <path d="M8 8h8l1 7h-2l-.5 7h-5L9 15H7z" opacity=".9"/>
+          <path d="M7.5 8.5 16.5 17" stroke="#000" stroke-width="1.6"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
